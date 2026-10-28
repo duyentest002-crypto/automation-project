@@ -1,4 +1,5 @@
 from playwright.sync_api import Page, expect
+from config import BASE_URL
 
 
 class LoginPage:
@@ -10,7 +11,7 @@ class LoginPage:
         self.error_message = page.locator("[data-test='error']")
 
     def open(self):
-        self.page.goto("/")
+        self.page.goto(BASE_URL)
 
     def login(self, username: str, password: str):
         self.username_input.fill(username)

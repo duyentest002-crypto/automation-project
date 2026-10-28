@@ -1,5 +1,6 @@
 import pytest
 from pages.products_page import ProductsPage
+from config import BASE_URL
 
 
 @pytest.mark.smoke
@@ -30,5 +31,5 @@ def test_login_negative(login_page, username, password, error):
 @pytest.mark.regression
 @pytest.mark.ui
 def test_access_products_without_login(page, login_page):  # TC_LOGIN_011
-    page.goto("/inventory.html")
+    page.goto(f"{BASE_URL}/inventory.html")
     login_page.expect_error("You can only access '/inventory.html' when you are logged in.")
