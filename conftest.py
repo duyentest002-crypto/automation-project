@@ -5,6 +5,8 @@ from pages.login_page import LoginPage
 from api.booking_client import BookingClient, build_booking
 from config import ADMIN_USER, ADMIN_PASSWORD
 from pages.products_page import ProductsPage
+import base64
+from pytest_html import extras
 
 
 @pytest.fixture
@@ -49,3 +51,17 @@ def new_booking(booking_client, token):
     booking_id = resp.json()["bookingid"]
     yield {"id": booking_id, "payload": payload}
     booking_client.delete_booking(booking_id, token)  # dọn dẹp, bỏ qua kết quả
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    report = outcome.get_result()
+    if report.when == "call" and report.failed:
+        page = item.funcargs.get("page")  # chỉ test UI mới có "page"
+        if page:
+            try:
+                png = page.screenshot()
+                img = base64.b64encode(png).decode()
+                report.extras = getattr(report, "extras", []) + [extras.png(img)]
+            except Exception:
+                pass  # trang đã đóng thì bỏ qua, không làm hỏng báo cáo

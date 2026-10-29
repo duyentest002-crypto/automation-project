@@ -1,0 +1,44 @@
+name: Automation Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Lấy code
+        uses: actions/checkout@v4
+
+      - name: Cài Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Cài thư viện
+        run: pip install -r requirements.txt
+
+      - name: Cài trình duyệt Playwright
+        run: playwright install --with-deps chromium
+
+      - name: Chạy test
+        run: >
+          pytest
+          --reruns 2 --reruns-delay 2
+          --tracing retain-on-failure
+          --html=reports/report.html --self-contained-html
+
+      - name: Lưu báo cáo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: |
+            reports/
+            test-results/
